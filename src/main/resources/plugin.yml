@@ -1,0 +1,22 @@
+name: Slux-Recruitment
+version: '${project.version}'
+main: eu.darkcode.sluxrecruitment.Core
+api-version: '1.20'
+authors: [96DarkCode96]
+description: Recruitment plugin for server Slux
+website: https://www.matejtomecek.eu
+commands:
+    border:
+        description: "Manage world's border"
+        aliases: [worldborder, wb, wborder]
+        usage: "/border [set|remove] [<world>] [<size>]"
+        permission: sluxrecruitment.command.border
+permissions:
+    sluxrecruitment.*:
+        description: "Allows to use plugin"
+        default: op
+        children:
+            sluxrecruitment.command.border: true
+    sluxrecruitment.command.border:
+        description: "Allows to manage world's border"
+        default: op
