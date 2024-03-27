@@ -29,7 +29,7 @@ public final class WorldBorderManager {
         this.core = core;
 
         ConfigurationSerialization.registerClass(WorldBorder.class);
-        this.config = PluginConfig.of("borders.yml");
+        this.config = PluginConfig.of(core, "borders.yml");
 
         MethodResult methodResult = loadBorders();
         if (!methodResult.isSuccess()) {

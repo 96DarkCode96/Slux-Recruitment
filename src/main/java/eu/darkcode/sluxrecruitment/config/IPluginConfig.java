@@ -1,11 +1,9 @@
 package eu.darkcode.sluxrecruitment.config;
 
 import eu.darkcode.sluxrecruitment.Core;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
 
 public interface IPluginConfig {
 
@@ -13,9 +11,8 @@ public interface IPluginConfig {
      * Create config dir if it doesn't exist
      * @return true if config dir was created or already exists
      */
-    static boolean initConfigDir() {
-        File pluginDir = new File(Bukkit.getPluginsFolder(), Core.PLUGIN_NAME);
-        return pluginDir.exists() || pluginDir.mkdirs();
+    static boolean initConfigDir(@NotNull Core core) {
+        return core.getDataFolder().exists() || core.getDataFolder().mkdirs();
     }
 
     /**

@@ -21,7 +21,6 @@ public final class FlyDataEntry extends AbstractPlayerDataEntry {
         return MethodResult.success();
     }
 
-    @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         player.setAllowFlight(false);
         player.setFlying(false);
@@ -31,7 +30,7 @@ public final class FlyDataEntry extends AbstractPlayerDataEntry {
     @Override
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
-            if(element == null) return pre_load(core, player);
+            if(element == null) return MethodResult.success();
             else {
                 JsonObject obj = element.getAsJsonObject(getKey());
                 player.setAllowFlight(obj.get("allow").getAsBoolean());

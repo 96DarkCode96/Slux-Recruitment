@@ -17,7 +17,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.ConnectException;
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,7 @@ public final class PlayerDataManager {
     public PlayerDataManager(@NotNull Core core) throws DatabaseNotEnabledException{
         this.core = core;
 
-        config = PluginConfig.of("player_data.yml");
+        config = PluginConfig.of(core, "player_data.yml");
         if (!config.loadConfig()) throw new RuntimeException("Failed to load player_data.yml");
 
         YamlConfiguration yamlConfiguration = config.getConfig();
@@ -65,7 +64,7 @@ public final class PlayerDataManager {
                     yamlConfiguration.getString("db_username"),
                     yamlConfiguration.getString("db_password"));
             SQLActionBuilder.function(PreparedStatement::execute)
-                    .sql("CREATE TABLE IF NOT EXISTS `player_data` (`uuid` UUID NOT NULL, `name` VARCHAR(16) NOT NULL, `data` JSON NOT NULL,  PRIMARY KEY (`uuid`, `name`))")
+                    .sql("CREATE TABLE IF NOT EXISTS `player_data` (`uuid` UUID NOT NULL, `name` VARCHAR(16) NOT NULL, `data` JSON NOT NULL,  PRIMARY KEY (`uuid`))")
                     .execute(conn);
         } catch(SQLNonTransientConnectionException e) {
             throw new RuntimeException("Failed to connect to database!", e);
@@ -80,7 +79,7 @@ public final class PlayerDataManager {
         try {
             Bukkit.getLogger().info("Saving player data for " + name + " (" + uuid + ")");
             return SQLActionBuilder.function(PreparedStatement::executeUpdate)
-                    .sql("INSERT INTO `player_data` (`uuid`, `name`, `data`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `data` = VALUES(`data`)")
+                    .sql("INSERT INTO `player_data` (`uuid`, `name`, `data`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `data` = VALUES(`data`), `name` = VALUES(`name`)")
                     .prepare((ps) -> {
                         ps.setString(1, uuid.toString().replaceAll("-", ""));
                         ps.setString(2, name);
@@ -102,11 +101,8 @@ public final class PlayerDataManager {
                         if(!resultSet.next()) return null;
                         return GSON.fromJson(resultSet.getString("data"), JsonObject.class);
                     })
-                    .sql("SELECT `data` FROM `player_data` WHERE `uuid` = ? AND `name` = ?")
-                    .prepare((ps) -> {
-                        ps.setString(1, uuid.toString().replaceAll("-", ""));
-                        ps.setString(2, name);
-                    })
+                    .sql("SELECT `data` FROM `player_data` WHERE `uuid` = ?")
+                    .prepare((ps) -> ps.setString(1, uuid.toString().replaceAll("-", "")))
                     .retry(getConn(), 5);
         } catch (Throwable e) {
             Bukkit.getLogger().log(Level.SEVERE, "Failed to load player data for " + name + " (" + uuid + ")", e);

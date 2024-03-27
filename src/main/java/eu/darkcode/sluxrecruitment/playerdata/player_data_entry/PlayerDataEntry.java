@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 public interface PlayerDataEntry {
 
     MethodResult save(@NotNull Core core, @NotNull Player player, @NotNull JsonObject element);
+
     MethodResult pre_load(@NotNull Core core, @NotNull Player player);
     MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element);
 

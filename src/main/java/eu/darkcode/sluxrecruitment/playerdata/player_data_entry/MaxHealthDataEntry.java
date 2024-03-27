@@ -25,8 +25,8 @@ public final class MaxHealthDataEntry extends AbstractPlayerDataEntry {
     @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        if(attribute == null) player.resetMaxHealth(); // THIS SHOULD NOT HAPPEN
-        else attribute.setBaseValue(20.0D);
+        if(attribute != null) attribute.setBaseValue(20.0D);
+        else player.resetMaxHealth();
         return MethodResult.success();
     }
 

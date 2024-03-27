@@ -18,7 +18,6 @@ public final class SaturationDataEntry extends AbstractPlayerDataEntry {
         return MethodResult.success();
     }
 
-    @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         player.setSaturation(5.0f);
         return MethodResult.success();
@@ -27,7 +26,7 @@ public final class SaturationDataEntry extends AbstractPlayerDataEntry {
     @Override
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
-            if(element == null) return pre_load(core, player);
+            if(element == null) return MethodResult.success();
             else player.setSaturation(element.get(getKey()).getAsInt());
         }catch (Throwable e){
             return MethodResult.error(e);

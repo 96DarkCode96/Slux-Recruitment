@@ -25,7 +25,6 @@ public final class DiscoveredRecipesDataEntry extends AbstractPlayerDataEntry {
         return MethodResult.success();
     }
 
-    @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         //player.undiscoverRecipes(player.getDiscoveredRecipes()); // THIS WOULD BE OKAY IF THERE WASN'T CLIENT DISPLAY GLITCH WHEN REASSIGNING RECIPES
         return MethodResult.success();
@@ -35,7 +34,7 @@ public final class DiscoveredRecipesDataEntry extends AbstractPlayerDataEntry {
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
             Bukkit.getScheduler().callSyncMethod(core, () -> {
-                if(element == null) return pre_load(core, player);
+                if(element == null) return MethodResult.success();
                 else {
                     JsonArray array = element.getAsJsonArray(getKey());
                     for (JsonElement jsonElement : array) {

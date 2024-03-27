@@ -1,6 +1,6 @@
 package eu.darkcode.sluxrecruitment.worldborder;
 
-import eu.darkcode.sluxrecruitment.utils.ResponseMessage;
+import eu.darkcode.sluxrecruitment.utils.ComponentUtil;
 import eu.darkcode.sluxrecruitment.utils.SoundUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -37,62 +37,40 @@ public class WorldBorderCommand implements CommandExecutor, TabCompleter {
             try {
                 size = Double.parseDouble(args[2]);
             } catch (NumberFormatException e) {
-                sender.sendMessage(ResponseMessage.COMMAND_WORLDBORDER_SET_FAILED_INVALID_SIZE
-                        .make(worldBorderManager.getCore())
-                        .replaceText(builder -> builder.match("%world%").replacement(args[1]))
-                        .replaceText(builder -> builder.match("%size%").replacement(args[2]))
-                );
+                sender.sendMessage(ComponentUtil.legacy("&8[&c!&8] &cInvalid size!"));
                 if(sender instanceof Player)
                     SoundUtil.playSound((Player) sender, Sound.ENTITY_VILLAGER_NO);
                 return true;
             }
             if(size < 1){
-                sender.sendMessage(ResponseMessage.COMMAND_WORLDBORDER_SET_FAILED_SMALL_SIZE
-                        .make(worldBorderManager.getCore())
-                        .replaceText(builder -> builder.match("%world%").replacement(args[1]))
-                        .replaceText(builder -> builder.match("%size%").replacement(String.valueOf(size)))
-                );
+                sender.sendMessage(ComponentUtil.legacy("&8[&c!&8] &cInvalid size!"));
                 if(sender instanceof Player)
                     SoundUtil.playSound((Player) sender, Sound.ENTITY_VILLAGER_NO);
                 return true;
             }
             if(worldBorderManager.addBorder(new WorldBorder(args[1], size))){
-                sender.sendMessage(ResponseMessage.COMMAND_WORLDBORDER_SET_SUCCESS
-                        .make(worldBorderManager.getCore())
-                        .replaceText(builder -> builder.match("%world%").replacement(args[1]))
-                        .replaceText(builder -> builder.match("%size%").replacement(String.valueOf(size)))
-                );
+                sender.sendMessage(ComponentUtil.legacy("&8[&c!&8] &7World border has been set! &8(&c" + args[1] + " &7=> &c" + size + "&7x&c" + size + "&8)"));
                 if(sender instanceof Player)
                     SoundUtil.playSound((Player) sender, Sound.ENTITY_VILLAGER_YES);
             }else {
-                sender.sendMessage(ResponseMessage.COMMAND_WORLDBORDER_SET_FAILED
-                        .make(worldBorderManager.getCore())
-                        .replaceText(builder -> builder.match("%world%").replacement(args[1]))
-                        .replaceText(builder -> builder.match("%size%").replacement(String.valueOf(size)))
-                );
+                sender.sendMessage(ComponentUtil.legacy("&8[&c!&8] &cSomething went wrong!"));
                 if(sender instanceof Player)
                     SoundUtil.playSound((Player) sender, Sound.ENTITY_VILLAGER_NO);
             }
             return true;
         }else if(args.length == 2 && args[0].equalsIgnoreCase("remove")){
             if (worldBorderManager.removeBorder(args[1])) {
-                sender.sendMessage(ResponseMessage.COMMAND_WORLDBORDER_REMOVE_SUCCESS
-                        .make(worldBorderManager.getCore())
-                        .replaceText(builder -> builder.match("%world%").replacement(args[1]))
-                );
+                sender.sendMessage(ComponentUtil.legacy("&8[&c!&8] &7World border has been removed! &8(&c" + args[1] + "&8)"));
                 if(sender instanceof Player)
                     SoundUtil.playSound((Player) sender, Sound.ENTITY_VILLAGER_YES);
             }else {
-                sender.sendMessage(ResponseMessage.COMMAND_WORLDBORDER_REMOVE_FAILED
-                        .make(worldBorderManager.getCore())
-                        .replaceText(builder -> builder.match("%world%").replacement(args[1]))
-                );
+                sender.sendMessage(ComponentUtil.legacy("&8[&c!&8] &cSomething went wrong!"));
                 if(sender instanceof Player)
                     SoundUtil.playSound((Player) sender, Sound.ENTITY_VILLAGER_NO);
             }
             return true;
         }
-        sender.sendMessage(ResponseMessage.COMMAND_WORLDBORDER_USAGE.make(worldBorderManager.getCore()));
+        sender.sendMessage(ComponentUtil.legacy("&8[&c!&8] &cInvalid usage! &8(&c/border set <world> <size> &8| &c/border remove <world> &8)"));
         return true;
     }
 

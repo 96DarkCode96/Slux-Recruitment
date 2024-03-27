@@ -25,7 +25,6 @@ public final class EffectsDataEntry extends AbstractPlayerDataEntry {
         return MethodResult.success();
     }
 
-    @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         player.clearActivePotionEffects();
         return MethodResult.success();
@@ -34,15 +33,15 @@ public final class EffectsDataEntry extends AbstractPlayerDataEntry {
     @Override
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
-            if(element == null) return pre_load(core, player);
-            else {
-                Bukkit.getScheduler().callSyncMethod(core, () -> {
+            Bukkit.getScheduler().callSyncMethod(core, () -> {
+                if(element == null) return MethodResult.success();
+                else {
                     Collection<PotionEffect> potionEffects = deserializeEffects(element.get(getKey()));
-                    if(potionEffects.isEmpty()) return pre_load(core, player);
+                    if(potionEffects.isEmpty()) return MethodResult.success();
                     player.addPotionEffects(potionEffects);
                     return null;
-                });
-            }
+                }
+            });
         }catch (Throwable e){
             return MethodResult.error(e);
         }

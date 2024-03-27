@@ -3,6 +3,7 @@ package eu.darkcode.sluxrecruitment.playerdata.player_data_entry;
 import com.google.gson.JsonObject;
 import eu.darkcode.sluxrecruitment.Core;
 import eu.darkcode.sluxrecruitment.utils.MethodResult;
+import eu.darkcode.sluxrecruitment.worldborder.WorldBorderListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -29,7 +30,6 @@ public final class LocationDataEntry extends AbstractPlayerDataEntry {
         return MethodResult.success();
     }
 
-    @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         // This is tough... should I teleport him to some safe place till he loads ?
         return MethodResult.success();
@@ -38,7 +38,7 @@ public final class LocationDataEntry extends AbstractPlayerDataEntry {
     @Override
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
-            if(element == null) return pre_load(core, player);
+            if(element == null) return MethodResult.success();
             else {
                 JsonObject obj = element.getAsJsonObject(getKey());
                 Location location = new Location(
@@ -48,7 +48,10 @@ public final class LocationDataEntry extends AbstractPlayerDataEntry {
                         obj.get("z").getAsDouble(),
                         obj.get("yaw").getAsFloat(),
                         obj.get("pitch").getAsFloat());
-                player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+
+                if(WorldBorderListener.teleportToSafety(location, player)){
+                    player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                }
             }
         }catch (Throwable e){
             return MethodResult.error(e);

@@ -22,7 +22,6 @@ public final class AirLevelDataEntry extends AbstractPlayerDataEntry {
         return MethodResult.success();
     }
 
-    @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         player.setMaximumAir(300);
         player.setRemainingAir(300);
@@ -33,7 +32,7 @@ public final class AirLevelDataEntry extends AbstractPlayerDataEntry {
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
             Bukkit.getScheduler().callSyncMethod(core, () -> {
-                if(element == null) return pre_load(core, player);
+                if(element == null) return MethodResult.success();
                 else{
                     JsonObject data = element.getAsJsonObject(getKey());
                     player.setMaximumAir(data.get("max").getAsInt());

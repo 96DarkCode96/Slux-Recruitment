@@ -30,7 +30,6 @@ public final class RespawnLocationDataEntry extends AbstractPlayerDataEntry {
         return MethodResult.success();
     }
 
-    @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         player.setRespawnLocation(null);
         return MethodResult.success();
@@ -40,9 +39,8 @@ public final class RespawnLocationDataEntry extends AbstractPlayerDataEntry {
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
             Bukkit.getScheduler().callSyncMethod(core, () -> {
-                if (element == null) {
-                    return pre_load(core, player);
-                }else {
+                if (element == null) return MethodResult.success();
+                else {
                     JsonObject obj = element.getAsJsonObject(getKey());
                     Location location = new Location(
                             Bukkit.getWorld(obj.get("world").getAsString()),

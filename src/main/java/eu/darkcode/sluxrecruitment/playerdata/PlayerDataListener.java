@@ -3,32 +3,29 @@ package eu.darkcode.sluxrecruitment.playerdata;
 import com.google.gson.JsonObject;
 import eu.darkcode.sluxrecruitment.playerdata.player_data_entry.PlayerDataEntry;
 import eu.darkcode.sluxrecruitment.playerdata.player_data_entry.PlayerDataEntryManager;
+import eu.darkcode.sluxrecruitment.utils.ComponentUtil;
 import eu.darkcode.sluxrecruitment.utils.MethodResult;
-import eu.darkcode.sluxrecruitment.utils.ResponseMessage;
 import eu.darkcode.sluxrecruitment.utils.SoundUtil;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDismountEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.potion.PotionEffectType;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -36,30 +33,33 @@ import java.util.stream.Collectors;
 public class PlayerDataListener implements Listener {
 
     private final PlayerDataManager playerDataManager;
-    private final Map<Player, ScheduledTask> loadingPlayers = new HashMap<>();
-    private final Map<Player, Entity> loadingPlayersEntity = new HashMap<>();
+    private final Map<UUID, ScheduledTask> loadingPlayers = new HashMap<>();
 
     public PlayerDataListener(PlayerDataManager playerDataManager) {
         this.playerDataManager = playerDataManager;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
         // NOTIFY PLAYER OF LOADING
         SoundUtil.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT);
-        player.sendMessage(playerDataManager.getCore().getResponseMessageManager().get(ResponseMessage.LOAD_PLAYER_DATA));
+        player.sendMessage(ComponentUtil.legacy("&8[&cServer&8] &7Loading..."));
 
         // CLEAR PLAYER DATA LOADED FROM DEFAULT MC FILE !!!
-        PlayerDataEntryManager.entries.forEach(entry -> entry.pre_load(playerDataManager.getCore(), player));
-        player.setCanPickupItems(false); // Prevent player from picking up items cause of inventory overriding
 
-        // SPAWN PIG AND FORCE PLAYER TO SIT ON IT
-        spawnPig(player);
+        //PlayerDataEntryManager.entries.forEach(entry -> entry.pre_load(playerDataManager.getCore(), player));
+        // REMOVED CAUSE SERVER IS RUNNING AND PLAYERS ALREADY HAVE SOME ITEMS IN MINECRAFT DATA FILE (THIS WOULD REMOVE ALL ITEMS FROM THEM)
+
+        player.setCanPickupItems(false); // Prevent player from picking up items cause of inventory overriding
+        player.addPotionEffect(PotionEffectType.DARKNESS.createEffect(-1, 0));
+        player.showTitle(Title.title(ComponentUtil.legacy("&7Loading..."),
+                ComponentUtil.legacy("&k&7# &r&8This may take a while &k&7#"),
+                Title.Times.times(Duration.ZERO, Duration.ofDays(1), Duration.ZERO)));
 
         // START ASYNC LOADING OF DATA
-        loadingPlayers.put(player, Bukkit.getAsyncScheduler().runNow(playerDataManager.getCore(), scheduledTask -> {
+        loadingPlayers.put(player.getUniqueId(), Bukkit.getAsyncScheduler().runNow(playerDataManager.getCore(), scheduledTask -> {
             // LOAD PLAYER DATA
             JsonObject playerData = playerDataManager.getPlayerData(player.getName(), player.getUniqueId());
 
@@ -73,16 +73,13 @@ public class PlayerDataListener implements Listener {
                     continue;
 
                 // REMOVE FROM LOADING LIST
-                loadingPlayers.remove(player);
-
-                // DE-SPAWN PIG
-                despawnPig(player);
+                loadingPlayers.remove(player.getUniqueId());
 
                 player.setCanPickupItems(true);
 
                 // KICK PLAYER
                 Bukkit.getScheduler().callSyncMethod(playerDataManager.getCore(), () -> {
-                    player.kick(playerDataManager.getCore().getResponseMessageManager().get(ResponseMessage.INVALID_JSON), PlayerKickEvent.Cause.RESTART_COMMAND);
+                    player.kick(ComponentUtil.legacy("&8[&cServer&8] &7Failed to load your data!"), PlayerKickEvent.Cause.RESTART_COMMAND);
                     return null;
                 });
 
@@ -96,76 +93,51 @@ public class PlayerDataListener implements Listener {
 
             // NOTIFY PLAYER OF SUCCESS
             SoundUtil.playSound(player, Sound.ENTITY_VILLAGER_YES);
-            player.sendMessage(playerDataManager.getCore().getResponseMessageManager().get(ResponseMessage.LOAD_PLAYER_DATA_SUCCESS));
+            player.sendMessage(ComponentUtil.legacy("&8[&cServer&8] &7Successfully loaded your data!"));
 
             // REMOVE FROM LOADING LIST
-            loadingPlayers.remove(player);
-
-            // DE-SPAWN PIG
-            despawnPig(player);
+            loadingPlayers.remove(player.getUniqueId());
 
             player.setCanPickupItems(true);
-        }));
-    }
 
-    private void spawnPig(Player player) {
-        Pig pig = (Pig) player.getWorld().spawnEntity(player.getLocation(), EntityType.PIG, CreatureSpawnEvent.SpawnReason.CUSTOM);
-        pig.setAdult();
-        pig.setAI(false);
-        pig.setAgeLock(true);
-        pig.setCollidable(false);
-        pig.setCanPickupItems(false);
-        pig.setGravity(false);
-        pig.setInvisible(true);
-        pig.setInvulnerable(true);
-        pig.setSilent(true);
+            player.resetTitle();
 
-        pig.addPassenger(player);
-
-        loadingPlayersEntity.put(player, pig);
-    }
-
-    private void despawnPig(Player player) {
-        Entity entity = loadingPlayersEntity.remove(player);
-        if(entity != null) {
             Bukkit.getScheduler().callSyncMethod(playerDataManager.getCore(), () -> {
-                entity.getPassengers().forEach(entity::removePassenger);
-                entity.remove();
+                player.removePotionEffect(PotionEffectType.DARKNESS);
+                Bukkit.getPluginManager().callEvent(new PlayerLoadEvent(player));
                 return null;
             });
-        }
-    }
-
-    @EventHandler
-    public void onVehicleExit(EntityDismountEvent event) {
-        if(event.getEntityType() != EntityType.PLAYER)
-            return;
-        Player player = loadingPlayers.keySet().stream().filter(a -> a.getEntityId() == event.getEntity().getEntityId()).findFirst().orElse(null);
-        if(player == null)
-            return;
-        event.setCancelled(true);
+        }));
     }
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if (loadingPlayers.containsKey(event.getPlayer()))
+        if (loadingPlayers.containsKey(event.getPlayer().getUniqueId()))
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onInteract(AsyncChatEvent event) {
-        if (loadingPlayers.containsKey(event.getPlayer()))
+        if (loadingPlayers.containsKey(event.getPlayer().getUniqueId()))
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onInteract(EntityDamageEvent event) {
-        if(event.getEntityType() != EntityType.PLAYER)
-            return;
-        Player player = loadingPlayers.keySet().stream().filter(a -> a.getEntityId() == event.getEntity().getEntityId()).findFirst().orElse(null);
-        if(player == null)
-            return;
-        event.setCancelled(true);
+        if(event.getEntityType() == EntityType.PLAYER && loadingPlayers.containsKey(event.getEntity().getUniqueId()))
+            event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onMove(PlayerMoveEvent event) {
+        if(loadingPlayers.containsKey(event.getPlayer().getUniqueId()))
+            event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onTeleport(PlayerTeleportEvent event) {
+        if(loadingPlayers.containsKey(event.getPlayer().getUniqueId()))
+            event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -183,13 +155,11 @@ public class PlayerDataListener implements Listener {
     }
 
     private void stopLoading(Player player) {
-        ScheduledTask remove = loadingPlayers.remove(player);
+        ScheduledTask remove = loadingPlayers.remove(player.getUniqueId());
         if(remove != null) {
             remove.cancel();
         }else{
             playerDataManager.savePlayerData(player.getName(), player.getUniqueId(), playerDataManager.fetch(player));
         }
-        Entity entity = loadingPlayersEntity.remove(player);
-        if(entity != null) entity.remove();
     }
 }

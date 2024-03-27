@@ -19,7 +19,6 @@ public final class SeenCreditsDataEntry extends AbstractPlayerDataEntry {
         return MethodResult.success();
     }
 
-    @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         player.setHasSeenWinScreen(false);
         return MethodResult.success();
@@ -29,7 +28,7 @@ public final class SeenCreditsDataEntry extends AbstractPlayerDataEntry {
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
             Bukkit.getScheduler().callSyncMethod(core, () -> {
-                if(element == null) return pre_load(core, player);
+                if(element == null) return MethodResult.success();
                 else player.setHasSeenWinScreen(element.get(getKey()).getAsBoolean());
                 return null;
             });

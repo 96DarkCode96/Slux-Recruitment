@@ -20,7 +20,6 @@ public final class HealthDataEntry extends AbstractPlayerDataEntry {
         return MethodResult.success();
     }
 
-    @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if(attribute == null) player.setHealth(20.0D);
@@ -31,7 +30,7 @@ public final class HealthDataEntry extends AbstractPlayerDataEntry {
     @Override
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
-            if(element == null) return pre_load(core, player);
+            if(element == null) return MethodResult.success();
             else player.setHealth(element.get(getKey()).getAsDouble());
         }catch (Throwable e){
             return MethodResult.error(e);

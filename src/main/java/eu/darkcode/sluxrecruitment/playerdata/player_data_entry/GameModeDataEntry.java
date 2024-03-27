@@ -20,7 +20,6 @@ public final class GameModeDataEntry extends AbstractPlayerDataEntry {
         return MethodResult.success();
     }
 
-    @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         player.setGameMode(Bukkit.getDefaultGameMode());
         return MethodResult.success();
@@ -30,7 +29,7 @@ public final class GameModeDataEntry extends AbstractPlayerDataEntry {
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
             Bukkit.getScheduler().callSyncMethod(core, () -> {
-                if(element == null) return pre_load(core, player);
+                if(element == null) return MethodResult.success();
                 else player.setGameMode(GameMode.valueOf(element.get(getKey()).getAsString()));
                 return null;
             });

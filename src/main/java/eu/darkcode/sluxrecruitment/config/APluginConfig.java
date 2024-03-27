@@ -15,8 +15,8 @@ public abstract class APluginConfig implements IPluginConfig {
     private final @NotNull File configFile;
     private @Nullable YamlConfiguration config;
 
-    public APluginConfig(@NotNull String configName) {
-        this.configFile = new File(Bukkit.getPluginsFolder(), Core.PLUGIN_NAME + "/" + configName);
+    public APluginConfig(@NotNull Core core, @NotNull String configName) {
+        this.configFile = new File(core.getDataFolder(), configName);
     }
 
     @Override

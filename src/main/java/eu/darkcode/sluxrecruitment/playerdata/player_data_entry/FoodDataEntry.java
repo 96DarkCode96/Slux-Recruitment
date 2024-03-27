@@ -21,7 +21,6 @@ public final class FoodDataEntry extends AbstractPlayerDataEntry {
         return MethodResult.success();
     }
 
-    @Override
     public MethodResult pre_load(@NotNull Core core, @NotNull Player player) {
         player.setFoodLevel(20);
         player.setExhaustion(0);
@@ -31,7 +30,7 @@ public final class FoodDataEntry extends AbstractPlayerDataEntry {
     @Override
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
-            if(element == null) return pre_load(core, player);
+            if(element == null) return MethodResult.success();
             else {
                 JsonObject data = element.getAsJsonObject(getKey());
                 player.setFoodLevel(data.get("food_level").getAsInt());
