@@ -39,13 +39,12 @@ public class PlayerDataListener implements Listener {
         this.playerDataManager = playerDataManager;
     }
 
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
         // NOTIFY PLAYER OF LOADING
         SoundUtil.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT);
-        player.sendMessage(ComponentUtil.legacy("&8[&cServer&8] &7Loading..."));
 
         // CLEAR PLAYER DATA LOADED FROM DEFAULT MC FILE !!!
 
@@ -67,7 +66,7 @@ public class PlayerDataListener implements Listener {
                     .filter(entry -> entry.canLoad(playerData))
                     .collect(Collectors.toList());
 
-            for (PlayerDataEntry entry : dataEntries) {
+            for(PlayerDataEntry entry : dataEntries) {
                 MethodResult load = entry.load(playerDataManager.getCore(), player, playerData);
                 if(load.isSuccess())
                     continue;
@@ -112,13 +111,13 @@ public class PlayerDataListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if (loadingPlayers.containsKey(event.getPlayer().getUniqueId()))
+        if(loadingPlayers.containsKey(event.getPlayer().getUniqueId()))
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onInteract(AsyncChatEvent event) {
-        if (loadingPlayers.containsKey(event.getPlayer().getUniqueId()))
+        if(loadingPlayers.containsKey(event.getPlayer().getUniqueId()))
             event.setCancelled(true);
     }
 
@@ -142,15 +141,13 @@ public class PlayerDataListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        if(event.getReason().equals(PlayerQuitEvent.QuitReason.KICKED))
-            return;
+        if(event.getReason().equals(PlayerQuitEvent.QuitReason.KICKED)) return;
         stopLoading(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerKick(PlayerKickEvent event) {
-        if(event.getCause().equals(PlayerKickEvent.Cause.RESTART_COMMAND))
-            return;
+        if(event.getCause().equals(PlayerKickEvent.Cause.RESTART_COMMAND)) return;
         stopLoading(event.getPlayer());
     }
 
@@ -158,7 +155,7 @@ public class PlayerDataListener implements Listener {
         ScheduledTask remove = loadingPlayers.remove(player.getUniqueId());
         if(remove != null) {
             remove.cancel();
-        }else{
+        } else {
             playerDataManager.savePlayerData(player.getName(), player.getUniqueId(), playerDataManager.fetch(player));
         }
     }

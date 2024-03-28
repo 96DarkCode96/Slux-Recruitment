@@ -31,6 +31,7 @@ public final class Core extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
+
         this.worldBorderManager = new WorldBorderManager(this);
         try {
             this.playerDataManager = new PlayerDataManager(this);
@@ -39,18 +40,18 @@ public final class Core extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-        Bukkit.getLogger().info("Slux-Recruitment Plugin has been enabled!");
+        Bukkit.getLogger().info("LifestealAddon Plugin has been enabled!");
     }
 
     @Override
     public void onDisable() {
         if(playerDataManager != null){
             Bukkit.getOnlinePlayers().forEach(player -> {
-                player.kick(ComponentUtil.legacy("&8[&cSERVER&8] &7Restarting..."), PlayerKickEvent.Cause.RESTART_COMMAND);
+                player.kick(ComponentUtil.legacy("&cRestarting..."), PlayerKickEvent.Cause.RESTART_COMMAND);
                 playerDataManager.savePlayerData(player.getName(), player.getUniqueId(), playerDataManager.fetch(player));
             });
             playerDataManager.close();
         }
-        Bukkit.getLogger().info("Slux-Recruitment Plugin has been disabled!");
+        Bukkit.getLogger().info("LifestealAddon Plugin has been disabled!");
     }
 }

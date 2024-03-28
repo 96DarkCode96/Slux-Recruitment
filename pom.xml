@@ -5,13 +5,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>eu.darkcode</groupId>
-  <artifactId>Slux-Recruitment</artifactId>
+  <artifactId>LifestealAddon</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>Slux-Recruitment</name>
+  <name>LifestealAddon</name>
 
-    <description>Recruitment plugin for server Slux</description>
+    <description>LifestealAddon for Slux</description>
     <properties>
     <java.version>11</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

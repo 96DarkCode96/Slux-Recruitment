@@ -43,8 +43,7 @@ public class WorldBorderListener implements Listener {
     }
 
     private static boolean checkOutside(Location location, Player player, Location center, double size) {
-        if(location.getX() > center.getX() + size || location.getX() < center.getX() - size ||
-                location.getZ() > center.getZ() + size || location.getZ() < center.getZ() - size) {
+        if(location.getX() > center.getX() + size || location.getX() < center.getX() - size || location.getZ() > center.getZ() + size || location.getZ() < center.getZ() - size) {
 
             player.teleportAsync(location.getWorld().getSpawnLocation());
             player.sendMessage(ComponentUtil.legacy("&8[&cServer&8] &7You have been teleported to the world spawn!\n" +
