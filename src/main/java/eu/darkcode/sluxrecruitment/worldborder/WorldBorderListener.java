@@ -26,11 +26,23 @@ public class WorldBorderListener implements Listener {
         });
     }
 
+    public static boolean teleportToSafety(Player player, double size){
+        Location location = player.getLocation();
+        WorldBorder worldBorder = location.getWorld().getWorldBorder();
+        Location center = worldBorder.getCenter();
+
+        return checkOutside(location, player, center, size);
+    }
+
     public static boolean teleportToSafety(Location location, Player player){
         WorldBorder worldBorder = location.getWorld().getWorldBorder();
         Location center = worldBorder.getCenter();
         double size = worldBorder.getSize();
 
+        return checkOutside(location, player, center, size);
+    }
+
+    private static boolean checkOutside(Location location, Player player, Location center, double size) {
         if(location.getX() > center.getX() + size || location.getX() < center.getX() - size ||
                 location.getZ() > center.getZ() + size || location.getZ() < center.getZ() - size) {
 

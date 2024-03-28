@@ -48,6 +48,7 @@ public final class WorldBorder implements ConfigurationSerializable {
             World world = Bukkit.getWorld(worldName);
             if(world == null) return false;
             world.getWorldBorder().reset();
+            world.getPlayers().forEach(player -> WorldBorderListener.teleportToSafety(player, size));
             world.getWorldBorder().setSize(size);
         } catch (Throwable e) {
             Bukkit.getLogger().log(Level.SEVERE, "Failed to apply world border! (" + worldName + ")", e);
