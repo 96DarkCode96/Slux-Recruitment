@@ -15,11 +15,16 @@ import java.util.logging.Level;
 @Getter
 public final class Core extends JavaPlugin {
 
+    public static Core INSTANCE;
+
     private WorldBorderManager worldBorderManager;
     private PlayerDataManager playerDataManager;
 
     @Override
     public void onEnable() {
+
+        Core.INSTANCE = this;
+
         // I don't want to disable saving by default cause of security reasons
         if(!Bukkit.spigot().getSpigotConfig().getBoolean("players.disable-saving")){
             Bukkit.getLogger().log(Level.WARNING, "File player data saving: enabled!");

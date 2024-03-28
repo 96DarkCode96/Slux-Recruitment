@@ -6,6 +6,7 @@ import eu.darkcode.sluxrecruitment.config.PluginConfig;
 import eu.darkcode.sluxrecruitment.utils.MethodResult;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -56,6 +57,7 @@ public final class WorldBorderManager {
         try {
             assert config.getConfig() != null;
             config.getConfig().addDefault("borders", new ArrayList<>());
+            config.getConfig().addDefault("spawn", new Location(null, 0, 0, 0));
             config.getConfig().options().copyDefaults(true).setHeader(List.of("Slux-Recruitment", "", "For better expiration, use the 'border' command!", "",
                     "Warning: Please avoid manually editing the 'borders.yml' file! If you do something wrong, the borders will be reset! (Or maybe some of them!)", ""));
             config.saveConfig();

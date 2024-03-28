@@ -38,7 +38,8 @@ public final class LocationDataEntry extends AbstractPlayerDataEntry {
     @Override
     public MethodResult load(@NotNull Core core, @NotNull Player player, @Nullable JsonObject element) {
         try{
-            if(element == null) return MethodResult.success();
+            if(element == null)
+                WorldBorderListener.teleportToSafety(player.getLocation(), player);
             else {
                 JsonObject obj = element.getAsJsonObject(getKey());
                 Location location = new Location(
